@@ -3,10 +3,10 @@ import { Button, Form, Input, InputNumber, Select } from 'antd'
 import { useColor } from '../../api/features/hooks/useColor';
 import { Option } from 'antd/es/mentions';
 import { usePhone } from '../../api/features/hooks/useProduct';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { RootState } from '../../redux';
-// import { useEffect } from 'react';
-// import { update } from '../../redux/features/PhoneSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux';
+import { useEffect } from 'react';
+import { update } from '../../redux/features/PhoneSlice';
 
 const { TextArea } = Input;
 
@@ -21,33 +21,36 @@ type FieldType = {
 const CreatePhone = () => {
   const [form] = Form.useForm();
   const { getColor } = useColor()
-  const { createPhone } = usePhone()
+  const { createPhone, updatePhone } = usePhone()
   const { data } = getColor
   const { mutate, isPending } = createPhone
-  // const { mutate: updatePhones } = updatePhone
-  // const dispatch = useDispatch()
+  const { mutate: updatePhones } = updatePhone
+  const dispatch = useDispatch()
 
 
-  // const student = useSelector((state: RootState) => state.studentSlice.value);
+
+  const student = useSelector((state: RootState) => state.studentSlice.value);
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    // console.log('Color:', student);
-    // if (student) {
-    //   console.log(student);
-    //   updatePhones({ body: values, id: student.id }, {
-    //     onSuccess: () => {
-    //       form.resetFields();
-    //       // dispatch(update(null))
-    //     }
-    //   })
+    if (student) {
+      console.log(student);
+      updatePhones({ body: values, id: student.id }, {
+        onSuccess: () => {
+          form.resetFields();
+          dispatch(update(null))
+        }
+      })
 
-    // } else {
-    mutate(values, {
-      onSuccess: () => {
-        form.resetFields();
-      }
-    })
-    // }
+    } else {
+      mutate(values, {
+        onSuccess: () => {
+          form.resetFields();
+        }
+      })
+    }
+
+    console.log("student", student);
+
 
   };
 
@@ -55,9 +58,13 @@ const CreatePhone = () => {
     console.log('Failed:', errorInfo);
   };
 
-  // useEffect(() => {
-  //   form.setFieldsValue(student);
-  // }, [student])
+  useEffect(() => {
+    if (student) {
+      form.setFieldsValue(student);
+    } else {
+      dispatch(update(null));
+    }
+  }, [student])
 
 
   return (
